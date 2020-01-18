@@ -14,6 +14,7 @@ module CryptoCore(
         key_ready,
         key_valid,
         key_update,
+        hash_in,
         decrypt,
         bdi_ready,
         bdi_valid,
@@ -27,7 +28,7 @@ module CryptoCore(
         bdo,
         bdo_valid,
         bdo_ready,
-        bdo_size,
+        bdo_type,
         bdo_valid_bytes,
 		end_of_block,
         msg_auth,
@@ -35,13 +36,13 @@ module CryptoCore(
         msg_auth_valid
     );
 	
-input clk, rst, key_valid, key_update, decrypt, bdi_valid, bdi_eot, bdi_eoi, bdo_ready, msg_auth_ready;
+input clk, rst, key_valid, key_update, hash_in, decrypt, bdi_valid, bdi_eot, bdi_eoi, bdo_ready, msg_auth_ready;
 input [2:0] bdi_size;
 input [3:0] bdi_type, bdi_valid_bytes, bdi_pad_loc;
 input [31:0] key, bdi;
 
 output key_ready, bdi_ready, bdo_valid, end_of_block, msg_auth, msg_auth_valid;
-output [3:0] bdo_size,  bdo_valid_bytes;
+output [3:0] bdo_valid_bytes, bdo_type;
 output [31:0] bdo;
 
 wire en_key, en_npub, en_bdi, clr_bdi, en_cum_size, sel_tag;

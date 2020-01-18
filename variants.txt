@@ -1,0 +1,15 @@
+v1
+
+    Reference software:    
+        spoc64sliscplight192v1
+        
+    Architecture description:
+        Implementation of SpoC-64, with c=128, b=192, n=128, and t=64. Basic iterative architecture where 1 round of the sLiSCP-light-[192] permutation is executed in 1 clock cycle.
+
+    Key setup time:
+        0
+        
+    Execution time of authenticated encryption:
+        219 + (Na*109) + (Nm*111)
+    Execution time of authenticated decryption:
+        219 + (Na*109) + (Nc*111)

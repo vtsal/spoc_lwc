@@ -11,7 +11,7 @@
 --!             http://www.gnu.org/licenses/gpl-3.0.txt
 --! @note       This is publicly available encryption source code that falls
 --!             under the License Exception TSU (Technology and software-
---!             -unrestricted)
+--!             —unrestricted)
 --------------------------------------------------------------------------------
 --! Description
 --!
@@ -99,36 +99,40 @@ architecture structure of LWC is
     signal cmd_ready_FIFO_out       : std_logic;
     --==========================================================================
     
-    component CryptoCore is
+    --==========================================================================
+    --! CryptoCore
+    --==========================================================================
+    component CryptoCore
 		PORT(
         clk             : in std_logic;
         rst             : in std_logic;
-        key             : in std_logic_vector(CCSW-1 downto 0);
-        bdi             : in std_logic_vector(CCW-1 downto 0);
+        key             : in std_logic_vector(W-1 downto 0);
+        bdi             : in std_logic_vector(W-1 downto 0);
         key_ready       : out std_logic;
         key_valid       : in std_logic;
         key_update      : in std_logic;
+        hash_in         : in std_logic;
         decrypt         : in std_logic;
         bdi_ready       : out std_logic;
         bdi_valid       : in std_logic;
         bdi_type        : in std_logic_vector(3 downto 0); 
         bdi_eot         : in std_logic;    
         bdi_eoi         : in std_logic;    
-        bdi_size        : in std_logic_vector(2 downto 0);   
+        bdi_size        : in std_logic_vector(2 downto 0);  
         bdi_valid_bytes : in std_logic_vector(3 downto 0);
         bdi_pad_loc     : in std_logic_vector(3 downto 0);
-        bdo             : out std_logic_vector(CCW-1 downto 0);
+        bdo             : out std_logic_vector(W-1 downto 0);
         bdo_valid       : out std_logic;
-        bdo_ready       : in std_logic;
-        bdo_valid_bytes : out std_logic_vector(3 downto 0);
+        bdo_ready       : in std_logic;  
+        bdo_type        : out std_logic_vector(3 downto 0); 
+        bdo_valid_bytes : out std_logic_vector(3 downto 0); 
 		end_of_block    : out std_logic;
         msg_auth        : out std_logic;
 		msg_auth_ready  : in std_logic;
         msg_auth_valid  : out std_logic
-        );
-    end component CryptoCore;
---==========================================================================  
- 
+    );
+end component;
+    
 begin
 
     assert (ASYNC_RSTN = false) report "Asynchronous reset is not supported!" severity failure;
@@ -162,7 +166,6 @@ begin
                 cmd_valid       => cmd_valid_FIFO_in                       ,
                 cmd_ready       => cmd_ready_FIFO_in
             );
-            
     Inst_Cipher: CryptoCore
         PORT MAP(
                 clk             => clk                                     ,
@@ -180,19 +183,18 @@ begin
                 bdi_eoi         => bdi_eoi_cipher_in                       ,
                 bdi_type        => bdi_type_cipher_in                      ,
                 decrypt         => decrypt_cipher_in                       ,
+                hash_in         => hash_cipher_in                          ,
                 key_update      => key_update_cipher_in                    ,
                 bdo             => bdo_cipher_out                          ,
                 bdo_valid       => bdo_valid_cipher_out                    ,
                 bdo_ready       => bdo_ready_cipher_out                    ,
-                --bdo_type        => bdo_type_cipher_out                     , -- not sure
+                bdo_type        => bdo_type_cipher_out                     ,
                 bdo_valid_bytes => bdo_valid_bytes_cipher_out              ,
-                end_of_block    => end_of_block_cipher_out                 , -- not sure
-                --done            => done                                    ,
+                end_of_block    => end_of_block_cipher_out                 ,
                 msg_auth_valid  => msg_auth_valid                          ,
                 msg_auth_ready  => msg_auth_ready                          ,
-                msg_auth        => msg_auth                             
-			);
-					 
+                msg_auth        => msg_auth
+            );
     Inst_PostProcessor: entity work.PostProcessor(PostProcessor)
         PORT MAP(
                 clk             => clk                                     ,
@@ -214,7 +216,6 @@ begin
                 msg_auth_ready  => msg_auth_ready                          ,
                 msg_auth        => msg_auth
             );
-            
     Inst_Header_Fifo: entity work.fwft_fifo(structure)
         generic map (
                 G_W             => W,
@@ -230,5 +231,7 @@ begin
                 dout_valid      => cmd_valid_FIFO_out,
                 dout_ready      => cmd_ready_FIFO_out
             );
+
+
 
 end structure;
