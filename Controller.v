@@ -393,7 +393,7 @@ init_trunc <= 0;
 		    reset_bdi_complete <= 1;
 			next_fsm_state <= LD_EXP_TAG_ST;
 		end else
-			next_fsm_state = STORE_TAG_ST;
+			next_fsm_state <= STORE_TAG_ST;
 	end
 	
 	LD_EXP_TAG_ST:
