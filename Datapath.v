@@ -43,7 +43,13 @@ parameter WIDTH = 48,
 		  G_NPUB_SIZE = 128;
 
 localparam MAXCTR = 17,
-           AD_TYPE = 4'b0001;
+           AD_TYPE = 4'b0001,
+			  ZEROES48 = 48'b0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
+			  ZEROES40 = 40'b0000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
+			  ZEROES32 = 32'b0000_0000_0000_0000_0000_0000_0000_0000,
+			  ZEROES24 = 24'b0000_0000_0000_0000_0000_0000,
+			  ZEROES16 = 16'b0000_0000_0000_0000,
+			  ZEROES8 = 8'b0000_0000;
 
 input clk, rst;
 input start, init_state, bdo_complete, en_state_in, sel_tag, init_lock, lock_tag_state;
@@ -292,18 +298,18 @@ assign bdi_pad_input = (ctrl_word[1] == 0 || decrypt_reg == 0) ? bdi_reg : {ptct
 
 // compute padding
 
-assign bdi_pad_half = (cum_size == 4'b0001) ? {bdi_pad_input[63:56], 8'b1000_0000, {{48}{1'b0}}} : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b0010) ? {bdi_pad_input[63:48], 8'b1000_0000, {{40}{1'b0}}} : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b0011) ? {bdi_pad_input[63:40], 8'b1000_0000, {{32}{1'b0}}} : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b0100) ? {bdi_pad_input[63:32], 8'b1000_0000, {{24}{1'b0}}} : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b0101) ? {bdi_pad_input[63:24], 8'b1000_0000, {{16}{1'b0}}} : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b0110) ? {bdi_pad_input[63:16], 8'b1000_0000, {{8}{1'b0}}} : 64'bz;
+assign bdi_pad_half = (cum_size == 4'b0001) ? {bdi_pad_input[63:56], 8'b1000_0000, ZEROES48} : 64'bz;
+assign bdi_pad_half = (cum_size == 4'b0010) ? {bdi_pad_input[63:48], 8'b1000_0000, ZEROES40} : 64'bz;
+assign bdi_pad_half = (cum_size == 4'b0011) ? {bdi_pad_input[63:40], 8'b1000_0000, ZEROES32} : 64'bz;
+assign bdi_pad_half = (cum_size == 4'b0100) ? {bdi_pad_input[63:32], 8'b1000_0000, ZEROES24} : 64'bz;
+assign bdi_pad_half = (cum_size == 4'b0101) ? {bdi_pad_input[63:24], 8'b1000_0000, ZEROES16} : 64'bz;
+assign bdi_pad_half = (cum_size == 4'b0110) ? {bdi_pad_input[63:16], 8'b1000_0000, ZEROES8} : 64'bz;
 assign bdi_pad_half = (cum_size == 4'b0111) ? {bdi_pad_input[63:8], 8'b1000_0000} : 64'bz;
 assign bdi_pad_half = (cum_size == 4'b1000) ? bdi_pad_input : 64'bz;
 assign bdi_pad_half = (cum_size == 4'b0000) ? 0 : 64'bz;
 
 assign next_bdi_reg = (clr_bdi == 1) ? 0 :
-                      (bdi_complete == 0) ? {bdi, {{32}{1'b0}}} : {bdi_reg[63:32], bdi};
+                      (bdi_complete == 0) ? {bdi, ZEROES32} : {bdi_reg[63:32], bdi};
 
 d_ff #(64) bdi_rg(
 .clk(clk),
